@@ -16,7 +16,6 @@ export class CompaniesService {
     private companyModel: SoftDeleteModel<CompanyDocument>
   ) { }
 
-
   createCompanyService(createCompanyDto: CreateCompanyDto, user: IUser){
     return this.companyModel.create({
       ...createCompanyDto,
@@ -28,6 +27,7 @@ export class CompaniesService {
   }
 
   async findAllService(currentPage: number, limit: number, qs: string) {
+
     const { filter, sort, population } = aqp(qs);
     delete filter.current;
     delete filter.pageSize;
@@ -37,7 +37,6 @@ export class CompaniesService {
 
     const totalItems = (await this.companyModel.find(filter)).length;
     const totalPages = Math.ceil(totalItems / defaultLimit);
-
     const result = await this.companyModel.find(filter)
       .skip(offset)
       .limit(defaultLimit)
@@ -88,5 +87,7 @@ export class CompaniesService {
     return this.companyModel.softDelete({
       _id:id
     });
+    }
   }
-}
+
+
