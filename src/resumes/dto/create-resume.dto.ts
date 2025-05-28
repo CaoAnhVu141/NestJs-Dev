@@ -10,7 +10,6 @@ export class CreateResumeDto {
     @IsNotEmpty({ message: 'Url không được để trống', })
     url: string;
 
-
     @IsNotEmpty({ message: 'History không được để trống', })
     history: string;
 }
