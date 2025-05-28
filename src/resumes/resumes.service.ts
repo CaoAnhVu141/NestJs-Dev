@@ -75,4 +75,16 @@ export class ResumesService {
     });
     return this.resumeModel.softDelete({_id: id });
   }
+
+  async getByIdService(id: string){
+   return await this.resumeModel.findOne({
+      id: id,
+    });
+  }
+
+  async getCVService(user: IUser){
+      return await this.resumeModel.find({
+        userId: user._id,
+      });
+  }
 }

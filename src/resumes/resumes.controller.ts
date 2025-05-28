@@ -32,4 +32,16 @@ export class ResumesController {
   remove(@Param('id') id: string, @User() user: IUser) {
     return this.resumesService.removeResumeService(id,user);
   }
+
+  @Get(':id')
+  @ResponseMessage("Get resume by id")
+  getById(id: string){
+    return this.resumesService.getByIdService(id);
+  }
+
+  @Post('by-user')
+  @ResponseMessage("Get resume by CV")
+  getUserByCV(@User() user: IUser){
+    return this.resumesService.getCVService(user);
+  }
 }
