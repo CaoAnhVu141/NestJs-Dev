@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { CreateResumeDto } from './dto/create-resume.dto';
+import { CreateResumeDto, CreateUserCVDto } from './dto/create-resume.dto';
 import { UpdateResumeDto } from './dto/update-resume.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
@@ -14,14 +14,41 @@ export class ResumesService {
     private resumeModel: SoftDeleteModel<ResumeDocument>
   ) { }
 
-  async createResumeService(createResumeDto: CreateResumeDto, user: IUser) {
-    await this.resumeModel.create({
-      ...createResumeDto,
-      createdBy: {
-        _id: user._id,
-        email: user.email,
+  // async createResumeService(createResumeDto: CreateResumeDto, user: IUser) {
+  //   await this.resumeModel.create({
+  //     ...createResumeDto,
+  //     createdBy: {
+  //       _id: user._id,
+  //       email: user.email,
+  //     }
+  //   });
+  // }
+  
+  async createResumeService(createUserCVDto: CreateUserCVDto, user: IUser) {
+      const {url, companyId, jobId} = createUserCVDto;
+      const {email, _id} = user;
+
+      const newCV = await this.resumeModel.create({
+        url, companyId, email, jobId,
+        userId: _id,
+      status: "PENDING",
+      createdBy: { _id, email },
+      history: [
+        {
+          status: "PENDING",
+          updatedAt: new Date,
+          updatedBy: {
+            _id: user._id,
+            email: user.email
+          }
+        }
+      ]
+      })
+
+      return {
+        _id: newCV?._id,
+        createdAt: newCV?.createdAt,
       }
-    });
   }
 
   async getAllResume(currentPage: number, limit: number, qs: string) {
