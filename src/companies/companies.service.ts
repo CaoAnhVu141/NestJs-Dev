@@ -6,6 +6,7 @@ import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { IUser } from 'src/users/users.interface';
 import aqp from 'api-query-params';
+import { CreateUserDto } from 'src/users/dto/create-user.dto';
 
 @Injectable()
 export class CompaniesService {
@@ -15,18 +16,18 @@ export class CompaniesService {
     private companyModel: SoftDeleteModel<CompanyDocument>
   ) { }
 
-
-  create(createCompanyDto: CreateCompanyDto, user: IUser) {
+  createCompanyService(createCompanyDto: CreateCompanyDto, user: IUser){
     return this.companyModel.create({
       ...createCompanyDto,
-      createdBy: {
-        _id: user._id,
-        email: user.email
+      createdBy:{
+          _id: user._id,
+          email: user.email
       }
-    })
+    });
   }
 
-  async findAll(currentPage: number, limit: number, qs: string) {
+  async findAllService(currentPage: number, limit: number, qs: string) {
+
     const { filter, sort, population } = aqp(qs);
     delete filter.current;
     delete filter.pageSize;
@@ -36,15 +37,12 @@ export class CompaniesService {
 
     const totalItems = (await this.companyModel.find(filter)).length;
     const totalPages = Math.ceil(totalItems / defaultLimit);
-
-
     const result = await this.companyModel.find(filter)
       .skip(offset)
       .limit(defaultLimit)
       .sort(sort as any)
       .populate(population)
       .exec();
-
 
     return {
       meta: {
@@ -53,41 +51,43 @@ export class CompaniesService {
         pages: totalPages,  //tổng số trang với điều kiện query
         total: totalItems // tổng số phần tử (số bản ghi)
       },
-      result //kết quả query
+      result //kết quả render
     }
 
-
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} company`;
+  async findByIdService(id: string){
+    return await this.companyModel.findById({
+        _id: id,
+    });
   }
 
-  async update(id: string, updateCompanyDto: UpdateCompanyDto, user: IUser) {
-    return await this.companyModel.updateOne(
-      { _id: id },
-      {
-        ...updateCompanyDto,
-        updatedBy: {
-          _id: user._id,
-          email: user.email
-        }
+
+  async updateById(id:string,updateCompanyDto: UpdateCompanyDto, user: IUser){
+    return await this.companyModel.updateOne({
+        _id: id,
+    },{
+      ...updateCompanyDto,
+      updatedBy: {
+        _id: user._id,
+        email: user.email,
       }
-    )
-
+    });
   }
 
-  async remove(id: string, user: IUser) {
-    await this.companyModel.updateOne(
-      { _id: id },
-      {
-        deletedBy: {
+  async removeById(id:string,user:IUser){
+    await this.companyModel.updateOne({
+      _id:id,
+    },{
+      deletedBy: {
           _id: user._id,
-          email: user.email
-        }
-      })
+          email: user.email,
+      }
+    });
     return this.companyModel.softDelete({
-      _id: id
-    })
+      _id:id
+    });
+    }
   }
-}
+
+

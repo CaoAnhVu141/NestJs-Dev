@@ -15,7 +15,7 @@ export class CompaniesController {
 
   @Post()
   create(@Body() createCompanyDto: CreateCompanyDto, @User() user: IUser) {
-    return this.companiesService.create(createCompanyDto, user);
+    return this.companiesService.createCompanyService(createCompanyDto, user);
   }
 
   @Get()
@@ -26,14 +26,13 @@ export class CompaniesController {
     @Query("pageSize") limit: string,
     @Query() qs: string,
   ) {
-
-    return this.companiesService.findAll(+currentPage, +limit, qs);
+    return this.companiesService.findAllService(+currentPage, +limit, qs);
   }
 
   @Get(':id')
   @Public()
-  findOne(@Param('id') id: string) {
-    return this.companiesService.findOne(+id);
+  findDataById(@Param('id') id: string) {
+    return this.companiesService.findByIdService(id);
   }
 
   @Patch(':id')
@@ -42,14 +41,14 @@ export class CompaniesController {
     @Body() updateCompanyDto: UpdateCompanyDto,
     @User() user: IUser
   ) {
-    return this.companiesService.update(id, updateCompanyDto, user);
+    return this.companiesService.updateById(id, updateCompanyDto, user);
   }
 
   @Delete(':id')
-  remove(
+  removeById(
     @Param('id') id: string,
     @User() user: IUser //req.user
   ) {
-    return this.companiesService.remove(id, user);
+    return this.companiesService.removeById(id, user);
   }
 }
