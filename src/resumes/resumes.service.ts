@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateResumeDto, CreateUserCVDto } from './dto/create-resume.dto';
 import { UpdateResumeDto } from './dto/update-resume.dto';
 import { InjectModel } from '@nestjs/mongoose';
@@ -6,6 +6,7 @@ import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
 import { Resume, ResumeDocument } from './schemas/resume.schemas';
 import { IUser } from 'src/users/users.interface';
 import aqp from 'api-query-params';
+import mongoose from 'mongoose';
 
 @Injectable()
 export class ResumesService {
@@ -14,23 +15,14 @@ export class ResumesService {
     private resumeModel: SoftDeleteModel<ResumeDocument>
   ) { }
 
-  // async createResumeService(createResumeDto: CreateResumeDto, user: IUser) {
-  //   await this.resumeModel.create({
-  //     ...createResumeDto,
-  //     createdBy: {
-  //       _id: user._id,
-  //       email: user.email,
-  //     }
-  //   });
-  // }
-  
-  async createResumeService(createUserCVDto: CreateUserCVDto, user: IUser) {
-      const {url, companyId, jobId} = createUserCVDto;
-      const {email, _id} = user;
 
-      const newCV = await this.resumeModel.create({
-        url, companyId, email, jobId,
-        userId: _id,
+  async createResumeService(createUserCVDto: CreateUserCVDto, user: IUser) {
+    const { url, companyId, jobId } = createUserCVDto;
+    const { email, _id } = user;
+
+    const newCV = await this.resumeModel.create({
+      url, companyId, email, jobId,
+      userId: _id,
       status: "PENDING",
       createdBy: { _id, email },
       history: [
@@ -43,16 +35,16 @@ export class ResumesService {
           }
         }
       ]
-      })
+    })
 
-      return {
-        _id: newCV?._id,
-        createdAt: newCV?.createdAt,
-      }
+    return {
+      _id: newCV?._id,
+      createdAt: newCV?.createdAt,
+    }
   }
 
   async getAllResume(currentPage: number, limit: number, qs: string) {
-    const { filter, sort, population,projection } = aqp(qs);
+    const { filter, sort, population, projection } = aqp(qs);
     delete filter.current;
     delete filter.pageSize;
 
@@ -80,16 +72,26 @@ export class ResumesService {
     }
   }
 
-  async updateResumeService(id: string, updateResumeDto: UpdateResumeDto, user: IUser) {
-    return await this.resumeModel.findById({
-      _id: id,
-    }).updateOne({
-      ...updateResumeDto,
-      updatedBy: {
-        _id: user._id,
+  async updateResumeService(id: string, status: string, user: IUser) {
+    const updated = await this.resumeModel.updateOne(
+      { _id: id }, {
+      status,
+      updateBy: {
+        id: user._id,
         email: user.email
+      },
+      $push: {
+        history: {
+          status: status,
+          updatedAt: new Date,
+          updateBy: {
+            _id: user._id,
+            email: user.email,
+          }
+        }
       }
     });
+    return updated;
   }
 
   async removeResumeService(id: string, user: IUser) {
@@ -101,18 +103,18 @@ export class ResumesService {
         email: user.email
       }
     });
-    return this.resumeModel.softDelete({_id: id });
+    return this.resumeModel.softDelete({ _id: id });
   }
 
-  async getByIdService(id: string){
-   return await this.resumeModel.findOne({
+  async getByIdService(id: string) {
+    return await this.resumeModel.findOne({
       id: id,
     });
   }
 
-  async getCVService(user: IUser){
-      return await this.resumeModel.find({
-        userId: user._id,
-      });
+  async getCVService(user: IUser) {
+    return await this.resumeModel.find({
+      userId: user._id,
+    });
   }
 }
