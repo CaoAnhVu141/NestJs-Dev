@@ -4,7 +4,7 @@ import mongoose from "mongoose";
 export class CreateRoleDto {
 
     @IsNotEmpty({ message: 'Name không được để trống', })
-    email: string;
+    name: string;
 
     @IsNotEmpty({ message: 'Description không được để trống', })
     description: string;
