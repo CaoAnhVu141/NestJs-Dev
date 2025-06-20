@@ -1,6 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
 
+export type PermissionDocument = HydratedDocument<Permission>;
+@Schema({ timestamps: true })
 export class Permission {
 
     @Prop()
