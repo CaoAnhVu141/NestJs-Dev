@@ -9,6 +9,7 @@ import { Role, RoleDocument } from './schema/role.schema';
 import { use } from 'passport';
 import aqp from 'api-query-params';
 import { UsersModule } from 'src/users/users.module';
+import path from 'path';
 
 @Injectable()
 export class RolesService {
@@ -70,7 +71,10 @@ export class RolesService {
     if (!item || item.isDeleted) {
       throw new NotFoundException("Role không tồn tại hoặc đã bị xóa");
     }
-    return await this.rolesModel.findById({ _id: id });
+    return (await this.rolesModel.findById({ _id: id })).populate({
+      path: "permissions",
+      select: {_id: 1, apiPath:1,name:1,method:1,module:1}
+    });
   }
 
   async updateDataSercice(id: string, updateRoleDto: UpdateRoleDto, user: IUser) {
@@ -95,7 +99,10 @@ export class RolesService {
     if (!checkRole || checkRole.isDeleted) {
       throw new NotFoundException("Role không tồn tại hoặc đã bị xóa");
     }
-
+    const roleFound = await this.rolesModel.findById(id);
+    if(roleFound.name === "ADMIN"){
+      throw new BadRequestException("Không thể xoá role Admin");
+    }
     await this.rolesModel.updateOne({
       _id: id,
     }, {

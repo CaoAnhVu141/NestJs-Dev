@@ -112,12 +112,13 @@ export class UsersService {
     return await this.userModel.findOne({
       _id: id
     }).select("-password") //exclude >< include
+    .populate({path: "role",select: {name: 1, _id: 1}})
   }
 
   findOneByUsername(username: string) {
     return this.userModel.findOne({
       email: username
-    })
+    }).populate({path: "role",select:{name:1,permissions: 1}})
   }
 
 
@@ -143,6 +144,10 @@ export class UsersService {
     if (!mongoose.Types.ObjectId.isValid(id))
       return `not found user`;
 
+    const userDefault = await this.userModel.findById(id);
+    if(userDefault.email == "nguyenvanbac@gmail.com"){
+      throw new BadRequestException("Không được phép xoá tài khoản admin");
+    }
     await this.userModel.updateOne(
       { _id: id },
       {
