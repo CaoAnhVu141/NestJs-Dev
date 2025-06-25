@@ -9,13 +9,17 @@ import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
 import { IUser } from './users.interface';
 import { User } from 'src/decorator/customize';
 import aqp from 'api-query-params';
+import { Role, RoleDocument } from 'src/roles/schema/role.schema';
 
 @Injectable()
 export class UsersService {
 
   constructor(
     @InjectModel(UserM.name)
-    private userModel: SoftDeleteModel<UserDocument>
+    private userModel: SoftDeleteModel<UserDocument>,
+
+    @InjectModel(Role.name)
+    private roleModel: SoftDeleteModel<RoleDocument>
   ) { }
 
 
@@ -61,13 +65,16 @@ export class UsersService {
       throw new BadRequestException(`Email: ${email} đã tồn tại trên hệ thống. Vui lòng sử dụng email khác.`)
     }
     const hashPassword = this.getHashPassword(password);
+    // fix roles
+    const userRole = await this.userModel.findOne({name: "USER"});
     let newRegister = await this.userModel.create({
       name, email,
       password: hashPassword,
       age,
       gender,
       address,
-      role: "USER"
+      // role: "USER"
+      role: userRole?._id
     })
     return newRegister;
   }
@@ -112,12 +119,13 @@ export class UsersService {
     return await this.userModel.findOne({
       _id: id
     }).select("-password") //exclude >< include
+      .populate({ path: "role", select: { name: 1, _id: 1 } })
   }
 
   findOneByUsername(username: string) {
     return this.userModel.findOne({
       email: username
-    })
+    }).populate({ path: "role", select: { name: 1 } })
   }
 
 
@@ -125,10 +133,10 @@ export class UsersService {
     return compareSync(password, hash);
   }
 
-  async update(updateUserDto: UpdateUserDto, user: IUser) {
+  async updateDataUser(id: string,updateUserDto: UpdateUserDto, user: IUser) {
 
     const updated = await this.userModel.updateOne(
-      { _id: updateUserDto._id },
+      { _id: id },
       {
         ...updateUserDto,
         updatedBy: {
@@ -139,10 +147,15 @@ export class UsersService {
     return updated;
   }
 
+
   async remove(id: string, user: IUser) {
     if (!mongoose.Types.ObjectId.isValid(id))
       return `not found user`;
 
+    const userDefault = await this.userModel.findById(id);
+    if (userDefault.email == "nguyenvanbac@gmail.com") {
+      throw new BadRequestException("Không được phép xoá tài khoản admin");
+    }
     await this.userModel.updateOne(
       { _id: id },
       {
@@ -160,7 +173,10 @@ export class UsersService {
     return await this.userModel.updateOne(
       { _id },
       { refreshToken }
-    )
+    ).populate({
+      path: "role",
+      select: {name:1}
+    });
   }
 
   findUserByToken = async (refreshToken: string) => {

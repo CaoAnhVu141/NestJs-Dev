@@ -3,6 +3,8 @@ import { Type } from 'class-transformer';
 import mongoose, { HydratedDocument, Types } from 'mongoose';
 import { Permission } from 'src/permissions/schema/permission.schema';
 
+export type RoleDocument = HydratedDocument<Role>;
+@Schema({ timestamps: true })
 export class Role {
 
     @Prop()

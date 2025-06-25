@@ -1,34 +1,41 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { RolesService } from './roles.service';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
+import { IUser } from 'src/users/users.interface';
+import { ResponseMessage, User } from 'src/decorator/customize';
 
 @Controller('roles')
 export class RolesController {
   constructor(private readonly rolesService: RolesService) {}
 
   @Post()
-  create(@Body() createRoleDto: CreateRoleDto) {
-    return this.rolesService.create(createRoleDto);
+  @ResponseMessage("Created data roles success!")
+  create(@Body() createRoleDto: CreateRoleDto, @User() user: IUser) {
+    return this.rolesService.createRoleService(createRoleDto,user);
   }
 
   @Get()
-  findAll() {
-    return this.rolesService.findAll();
+  @ResponseMessage("Fetch data roles success!")
+  getAllData(@Query("current") currentPage: string, @Query("pageSize") limit: string, @Query() queryString: string) {
+    return this.rolesService.getAllDataService(+currentPage,+limit,queryString);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.rolesService.findOne(+id);
+  @ResponseMessage("Get data by id!")
+  findById(@Param('id') id: string) {
+    return this.rolesService.getDataByIdService(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateRoleDto: UpdateRoleDto) {
-    return this.rolesService.update(+id, updateRoleDto);
+  @ResponseMessage("Update data success!")
+  update(@Param('id') id: string, @Body() updateRoleDto: UpdateRoleDto, @User() user: IUser) {
+    return this.rolesService.updateDataSercice(id, updateRoleDto,user);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.rolesService.remove(+id);
+  @ResponseMessage("Delete by id success")
+  removeById(@Param('id') id: string,@User() user: IUser) {
+    return this.rolesService.deleteByIdService(id,user);
   }
 }
