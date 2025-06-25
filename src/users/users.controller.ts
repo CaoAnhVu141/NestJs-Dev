@@ -5,7 +5,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { Public, ResponseMessage, User } from 'src/decorator/customize';
 import { IUser } from './users.interface';
 
-@Controller('users') // => /users
+@Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) { }
 
@@ -36,10 +36,10 @@ export class UsersController {
     return foundUser;
   }
 
-  @ResponseMessage("Update a User")
-  @Patch()
-  async update(@Body() updateUserDto: UpdateUserDto, @User() user: IUser) {
-    let updatedUser = await this.usersService.update(updateUserDto, user);
+  @ResponseMessage("Update data user")
+  @Patch(':id')
+  async update(@Param('id') id: string,@Body() updateUserDto: UpdateUserDto, @User() user: IUser) {
+    const updatedUser = await this.usersService.updateDataUser(id,updateUserDto, user);
     return updatedUser;
   }
 

@@ -5,12 +5,13 @@ import { LocalAuthGuard } from './local-auth.guard';
 import { RegisterUserDto } from 'src/users/dto/create-user.dto';
 import { Request, Response } from 'express';
 import { IUser } from 'src/users/users.interface';
+import { RolesService } from 'src/roles/roles.service';
 
 @Controller("auth")
 export class AuthController {
     constructor(
-        private authService: AuthService
-
+        private authService: AuthService,
+        private roleService: RolesService
     ) { }
 
     @Public()
@@ -32,13 +33,17 @@ export class AuthController {
 
     @ResponseMessage("Get user information")
     @Get('/account')
-    handleGetAccount(@User() user: IUser) {
+    async handleGetAccount(@User() user: IUser) {
+        const temporaryData = await this.roleService.getDataByIdService(user.role?._id) as any;
+        if (temporaryData) {
+            user.permission = temporaryData.permissions;
+        }
         return { user };
     }
 
     @Public()
     @ResponseMessage("Get User by refresh token")
-    @Get('/refresh')
+    @Get('/refresh_token')
     handleRefreshToken(@Req() request: Request, @Res({ passthrough: true }) response: Response) {
         const refreshToken = request.cookies["refresh_token"];
         return this.authService.processNewToken(refreshToken, response);

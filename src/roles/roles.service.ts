@@ -10,6 +10,7 @@ import { use } from 'passport';
 import aqp from 'api-query-params';
 import { UsersModule } from 'src/users/users.module';
 import path from 'path';
+import { ADMIN_ROLE } from 'src/databases/sample';
 
 @Injectable()
 export class RolesService {
@@ -100,7 +101,7 @@ export class RolesService {
       throw new NotFoundException("Role không tồn tại hoặc đã bị xóa");
     }
     const roleFound = await this.rolesModel.findById(id);
-    if(roleFound.name === "ADMIN"){
+    if(roleFound.name === ADMIN_ROLE){
       throw new BadRequestException("Không thể xoá role Admin");
     }
     await this.rolesModel.updateOne({
