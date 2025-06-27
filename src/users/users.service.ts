@@ -10,6 +10,7 @@ import { IUser } from './users.interface';
 import { User } from 'src/decorator/customize';
 import aqp from 'api-query-params';
 import { Role, RoleDocument } from 'src/roles/schema/role.schema';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class UsersService {
@@ -19,7 +20,9 @@ export class UsersService {
     private userModel: SoftDeleteModel<UserDocument>,
 
     @InjectModel(Role.name)
-    private roleModel: SoftDeleteModel<RoleDocument>
+    private roleModel: SoftDeleteModel<RoleDocument>,
+
+    private configService: ConfigService,
   ) { }
 
 
@@ -153,7 +156,8 @@ export class UsersService {
       return `not found user`;
 
     const userDefault = await this.userModel.findById(id);
-    if (userDefault.email == "nguyenvanbac@gmail.com") {
+    // if (userDefault && userDefault.email == "nguyenvanbac@gmail.com") {
+    if (userDefault && userDefault.email == this.configService.get<string>("EMAIL_DEFAULT")){
       throw new BadRequestException("Không được phép xoá tài khoản admin");
     }
     await this.userModel.updateOne(
