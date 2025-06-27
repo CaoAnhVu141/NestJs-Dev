@@ -17,7 +17,7 @@ export class AuthService {
         private roleService: RolesService,
     ) { }
 
-    //ussername/ pass là 2 tham số thư viện passport nó ném về
+    //username and pass are two parameter of passport throw back
     async validateUser(username: string, pass: string): Promise<any> {
         const user = await this.usersService.findOneByUsername(username);
         if (user) {
