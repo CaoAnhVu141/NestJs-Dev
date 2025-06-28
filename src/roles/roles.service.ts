@@ -72,7 +72,7 @@ export class RolesService {
     if (!item || item.isDeleted) {
       throw new NotFoundException("Role không tồn tại hoặc đã bị xóa");
     }
-    return (await this.rolesModel.findById({ _id: id })).populate({
+    return (await this.rolesModel.findById(id)).populate({
       path: "permissions",
       select: {_id: 1, apiPath:1,name:1,method:1,module:1}
     });
