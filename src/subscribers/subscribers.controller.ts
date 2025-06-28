@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { SubscribersService } from './subscribers.service';
 import { CreateSubscriberDto } from './dto/create-subscriber.dto';
 import { UpdateSubscriberDto } from './dto/update-subscriber.dto';
@@ -16,8 +16,9 @@ export class SubscribersController {
   }
 
   @Get()
-  findAll() {
-    return this.subscribersService.findAll();
+  @ResponseMessage("Get all data success")
+  getAllSubsController(@Query("current") currentPage: string, @Query("pageSize") limit: string, @Query() queryString: string) {
+    return this.subscribersService.getAllService(+currentPage, +limit, queryString);
   }
 
   @Get(':id')
@@ -27,12 +28,14 @@ export class SubscribersController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateSubscriberDto: UpdateSubscriberDto) {
-    return this.subscribersService.update(+id, updateSubscriberDto);
+  @ResponseMessage("Update success")
+  updateSubController(@Param('id') id: string, @Body() updateSubscriberDto: UpdateSubscriberDto, @User() user: IUser) {
+    return this.subscribersService.updateService(id, updateSubscriberDto,user);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.subscribersService.remove(+id);
+  @ResponseMessage("Deleted success")
+  remove(@Param('id') id: string, @User() user: IUser) {
+    return this.subscribersService.removeByIdService(id,user);
   }
 }
