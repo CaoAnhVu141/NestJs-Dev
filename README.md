@@ -1,7 +1,9 @@
 
 ## Tên dự án: Xây dựng nền tảng tìm kiếm việc làm
 
-## Mô tả: Hệ thống cho phép người dùng tìm kiếm và nộp CV, khi người dùng nộp xong thì được hệ thống Admin duyệt CV, nếu duyệt thành công thì CV sẽ tới người dùng HR. Người dùng có thể xem các CV mình đã nộp
+## Mô tả
+- Hệ thống cho phép người dùng tìm kiếm và nộp CV một cách hiệu quả
+- Hệ thống gồm 3 vai trò chính: Ứng viên, HR, và Admin, hoạt động theo quy trình duyệt CV chặt chẽ và phân quyền linh hoạt.
 
 ## Tính năng chính
 * Ứng viên
