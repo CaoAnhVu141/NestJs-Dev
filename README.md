@@ -36,7 +36,7 @@
 - Thực hành với NestJS, MongoDB và bảo mật với JWT
 
 ## Link Frontend
-- 
+- https://github.com/CaoAnhVu141/React_For_CV.git
 
 ## Các bước chạy dự án
 - Cài đặt thư viện với câu lệnh: npm i
