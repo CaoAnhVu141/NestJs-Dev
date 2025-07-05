@@ -7,6 +7,7 @@ import { Subscriber, SubscriberDocument } from 'src/subscribers/schema/subscribe
 import { Job, JobDocument } from 'src/jobs/schemas/job.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import { skip } from 'rxjs';
+import { Cron, CronExpression } from '@nestjs/schedule';
 
 @Controller('mail')
 export class MailController {
@@ -60,6 +61,11 @@ export class MailController {
         });
       }
     }
+  }
+
+  @Cron(CronExpression.EVERY_30_SECONDS)
+  handleCron() {
+    console.log('Called every 30 seconds');
   }
 
 }

@@ -18,6 +18,7 @@
 - Quản lý hệ thống bao gồm như user, company, job, permissions, role, resume
 - Phân quyền cho HR: chỉ HR có role cụ thể mới được truy cập tính năng
 - Hệ thống sẽ tự động gửi email tới ứng viên khi ứng viên quan tâm đến công việc của công ty
+- Dùng Cron Job để tự động gửi email mà ứng viên đã quan tâm theo lịch cụ thể
 
 ## Authentication & Authorization
 - Sử dụng JWT (Access + Refresh Token) để xác thực người dùng
