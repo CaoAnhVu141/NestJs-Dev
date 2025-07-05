@@ -26,14 +26,8 @@ export class MailController {
   @Get()
   @Public()
   @ResponseMessage("Test email")
+  @Cron(CronExpression.EVERY_WEEKEND)
   async handleTestEmail() {
-    const job = [{
-      name: "Nguyen Bac",
-      company: "Ruoi",
-      salary: "100",
-      skills: ["Haha", "Boc phet"]
-    }];
-
     const subscribers = await this.subscriberModel.find({});
     for (const subs of subscribers) {
       const subsSkills = subs.skills;
@@ -62,10 +56,4 @@ export class MailController {
       }
     }
   }
-
-  @Cron(CronExpression.EVERY_30_SECONDS)
-  handleCron() {
-    console.log('Called every 30 seconds');
-  }
-
 }
