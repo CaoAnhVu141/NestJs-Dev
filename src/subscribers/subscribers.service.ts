@@ -10,19 +10,19 @@ import aqp from 'api-query-params';
 @Injectable()
 export class SubscribersService {
 
-    constructor(
-      @InjectModel(Subscriber.name)
-      private subscriberModel: SoftDeleteModel<SubscriberDocument>
-    ) { }
+  constructor(
+    @InjectModel(Subscriber.name)
+    private subscriberModel: SoftDeleteModel<SubscriberDocument>
+  ) { }
 
   async createSubService(createSubscriberDto: CreateSubscriberDto, user: IUser) {
-      return await this.subscriberModel.create({
-        ...createSubscriberDto,
-        createdBy: {
-            _id: user._id,
-            email: user.email
-        }
-      });
+    return await this.subscriberModel.create({
+      ...createSubscriberDto,
+      createdBy: {
+        _id: user._id,
+        email: user.email
+      }
+    });
   }
 
   async getAllService(currentPage: number, limit: number, qs: string) {
@@ -58,37 +58,50 @@ export class SubscribersService {
     return await this.subscriberModel.findById(id);
   }
 
-  async updateService(id: string, updateSubscriberDto: UpdateSubscriberDto, user: IUser) {
-      const dataSub = await this.subscriberModel.findById(id);
-      if(!dataSub || dataSub.isDeleted){
+  async updateService(updateSubscriberDto: UpdateSubscriberDto, user: IUser) {
+    const dataSub = await this.subscriberModel.findOne({
+      email: user.email
+    });
+
+    // if(!dataSub){
+    //     return await this.subscriberModel.create(updateSubscriberDto,user)
+    // }
+    if (!dataSub || dataSub.isDeleted) {
       throw new NotFoundException("Sub không tồn tại hoặc đã bị xóa");
     }
 
-   return await this.subscriberModel.updateOne({
-      _id: id,
-    },{
+    return await this.subscriberModel.updateOne({
+      email: user.email,
+    }, {
       ...updateSubscriberDto,
       updatedBy: {
         _id: user._id,
         email: user.email
       }
+    }, {
+      upsert: true,
     });
   }
 
   async removeByIdService(id: string, user: IUser) {
     const dataSub = await this.subscriberModel.findById(id);
-    if(!dataSub || dataSub.isDeleted){
+    if (!dataSub || dataSub.isDeleted) {
       throw new NotFoundException("Sub không tồn tại hoặc đã bị xóa");
     }
 
     await this.subscriberModel.updateOne({
       _id: id
-    },{
+    }, {
       deletedBy: {
         _id: user._id,
         email: user.email
       }
     });
-    return this.subscriberModel.softDelete({_id: id});
+    return this.subscriberModel.softDelete({ _id: id });
+  }
+
+  async getSkills(user: IUser) {
+    const { email } = user;
+    return await this.subscriberModel.findOne({ email }, { skills: 1 })
   }
 }

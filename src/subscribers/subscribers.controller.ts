@@ -3,7 +3,7 @@ import { SubscribersService } from './subscribers.service';
 import { CreateSubscriberDto } from './dto/create-subscriber.dto';
 import { UpdateSubscriberDto } from './dto/update-subscriber.dto';
 import { IUser } from 'src/users/users.interface';
-import { ResponseMessage, User } from 'src/decorator/customize';
+import { ResponseMessage, SkipCheckPermission, User } from 'src/decorator/customize';
 
 @Controller('subscribers')
 export class SubscribersController {
@@ -27,15 +27,23 @@ export class SubscribersController {
     return this.subscribersService.findOneService(id);
   }
 
-  @Patch(':id')
+  @Patch()
+  @SkipCheckPermission()
   @ResponseMessage("Update success")
-  updateSubController(@Param('id') id: string, @Body() updateSubscriberDto: UpdateSubscriberDto, @User() user: IUser) {
-    return this.subscribersService.updateService(id, updateSubscriberDto,user);
+  updateSubController(@Body() updateSubscriberDto: UpdateSubscriberDto, @User() user: IUser) {
+    return this.subscribersService.updateService(updateSubscriberDto,user);
   }
 
   @Delete(':id')
   @ResponseMessage("Deleted success")
   remove(@Param('id') id: string, @User() user: IUser) {
     return this.subscribersService.removeByIdService(id,user);
+  }
+
+  @Post("skills") 
+  @ResponseMessage("Get user skills success")
+  @SkipCheckPermission()
+  getUserSkills(@User() user: IUser){
+    return this.subscribersService.getSkills(user);
   }
 }
