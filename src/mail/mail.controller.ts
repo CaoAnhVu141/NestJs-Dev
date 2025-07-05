@@ -7,6 +7,7 @@ import { Subscriber, SubscriberDocument } from 'src/subscribers/schema/subscribe
 import { Job, JobDocument } from 'src/jobs/schemas/job.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import { skip } from 'rxjs';
+import { Cron, CronExpression } from '@nestjs/schedule';
 
 @Controller('mail')
 export class MailController {
@@ -25,14 +26,8 @@ export class MailController {
   @Get()
   @Public()
   @ResponseMessage("Test email")
+  @Cron(CronExpression.EVERY_WEEKEND)
   async handleTestEmail() {
-    const job = [{
-      name: "Nguyen Bac",
-      company: "Ruoi",
-      salary: "100",
-      skills: ["Haha", "Boc phet"]
-    }];
-
     const subscribers = await this.subscriberModel.find({});
     for (const subs of subscribers) {
       const subsSkills = subs.skills;
@@ -61,5 +56,4 @@ export class MailController {
       }
     }
   }
-
 }
