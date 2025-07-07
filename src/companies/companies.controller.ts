@@ -8,6 +8,7 @@ import { CreateCompanyDto } from './dto/create-company.dto';
 import { UpdateCompanyDto } from './dto/update-company.dto';
 import { Public, ResponseMessage, User } from 'src/decorator/customize';
 import { IUser } from 'src/users/users.interface';
+import { Throttle } from '@nestjs/throttler';
 
 @Controller('companies')
 export class CompaniesController {
@@ -18,6 +19,7 @@ export class CompaniesController {
     return this.companiesService.createCompanyService(createCompanyDto, user);
   }
 
+  @Throttle({ default: { limit: 3, ttl: 60000 } })
   @Get()
   @Public()
   @ResponseMessage("Fetch List Company with paginate")
