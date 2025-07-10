@@ -9,7 +9,9 @@ import { UpdateCompanyDto } from './dto/update-company.dto';
 import { Public, ResponseMessage, User } from 'src/decorator/customize';
 import { IUser } from 'src/users/users.interface';
 import { Throttle } from '@nestjs/throttler';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('companies')
 @Controller('companies')
 export class CompaniesController {
   constructor(private readonly companiesService: CompaniesService) { }
@@ -33,6 +35,7 @@ export class CompaniesController {
 
   @Get(':id')
   @Public()
+  @ResponseMessage("Fet data company success")
   findDataById(@Param('id') id: string) {
     return this.companiesService.findByIdService(id);
   }
